@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>대한민국 국군: 복무 시뮬레이터</title>
+<style>
+:root{--bg:#0a1110;--panel:rgba(18,29,26,.92);--line:#344941;--gold:#d6b66b;--mint:#9ac7a8;--muted:#a8b7ad;--text:#eef4ee;--red:#d56c61}
+*{box-sizing:border-box}body{margin:0;background:#0a1110;color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif}
+header{padding:18px clamp(14px,3vw,34px);display:flex;gap:16px;align-items:center;justify-content:space-between;border-bottom:1px solid #3c5145;background:#0b1512e8;position:sticky;top:0;z-index:5;backdrop-filter:none}
+.brand{display:flex;gap:12px;align-items:center}.emblem{width:44px;height:44px;border:1px solid var(--gold);border-radius:50%;display:grid;place-items:center;color:var(--gold);font-size:22px;background:linear-gradient(145deg,#283b30,#101a16);box-shadow:0 0 22px #d6b66b20}
+h1{font-size:clamp(16px,2vw,23px);margin:0;letter-spacing:.02em}.sub{color:var(--muted);font-size:12px;margin-top:3px}.header-right{display:flex;gap:8px;align-items:center}.chip{font-size:12px;border:1px solid #43594c;border-radius:0;padding:7px 10px;color:#c9d8cc}
+main{max-width:1450px;margin:auto;padding:20px clamp(12px,2.5vw,30px) 40px}.hero{display:grid;grid-template-columns:1.7fr 1fr;gap:16px}
+.scene{position:relative;min-height:330px;border:1px solid #40564a;border-radius:4px;overflow:hidden;background:#17251e;box-shadow:0 8px 0 #050a07}
+canvas{display:block;width:100%;height:100%;position:absolute;inset:0;image-rendering:pixelated;image-rendering:crisp-edges}.scene-overlay{position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,#07100cc9,transparent 65%),linear-gradient(0deg,#07100cc9,transparent 60%)}
+.scene-top{position:absolute;left:20px;top:18px}.eyebrow{font-size:11px;color:var(--gold);letter-spacing:.16em;text-transform:uppercase}.scene h2{font-size:clamp(23px,3vw,38px);line-height:1.1;margin:8px 0}.scene-copy{max-width:380px;color:#d1ded3;font-size:13px;line-height:1.65}.scene-bottom{position:absolute;bottom:17px;left:20px;right:20px;display:flex;justify-content:space-between;align-items:end;gap:10px}.location{font-size:12px;color:#d5e0d7}.live{display:flex;align-items:center;gap:7px;font-size:11px;color:#b4d5bb}.dot{width:7px;height:7px;background:#7ce39a;border-radius:50%;box-shadow:0 0 10px #7ce39a}
+.profile{background:linear-gradient(145deg,#192a22,#0f1915);border:1px solid var(--line);border-radius:4px;padding:20px;display:flex;flex-direction:column;gap:14px}
+.profile-head{display:flex;align-items:center;justify-content:space-between}.profile-head h3{margin:0;font-size:16px}.small{font-size:11px;color:var(--muted)}
+.soldier-wrap{display:flex;align-items:center;gap:16px;min-height:130px}.soldier-card{width:110px;height:130px;flex-shrink:0;border-radius:3px;background:radial-gradient(circle at 50% 20%,#4c6752,#17251d 70%);border:1px solid #536d57;display:grid;place-items:center;overflow:hidden}.soldier-card svg{width:100%;height:100%}.rank-name{font-size:22px;font-weight:750}.rank-en{color:var(--gold);font-size:11px;letter-spacing:.12em;margin-top:3px}.rank-note{font-size:12px;color:#c2d0c5;margin-top:8px;line-height:1.5}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.stat{padding:10px;background:#0b1511;border:1px solid #2f4538;border-radius:3px}.stat span{font-size:10px;color:var(--muted);display:block}.stat strong{display:block;font-size:18px;margin-top:4px}
+.layout{display:grid;grid-template-columns:1.05fr 1fr 1fr;gap:16px;margin-top:16px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:18px;min-width:0}.panel-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:15px}.panel-title h3{font-size:15px;margin:0}.tag{font-size:10px;color:var(--gold);border:1px solid #6e603d;border-radius:6px;padding:4px 7px}
+.slider-row{margin:15px 0}.slider-label{display:flex;justify-content:space-between;gap:8px;font-size:12px;margin-bottom:8px}.slider-label b{color:var(--mint)}input[type=range]{width:100%;accent-color:#a8c9a9;cursor:pointer}.range-scale{display:flex;justify-content:space-between;color:#7e9385;font-size:10px;margin-top:2px}.note{font-size:11px;color:#9aada0;line-height:1.6}
+.btn{border:1px solid #647c68;background:linear-gradient(180deg,#365340,#20392b);color:#f1f7f0;padding:11px 13px;border-radius:3px;font-weight:700;cursor:pointer;transition:.15s;font-size:12px}.btn:hover{filter:brightness(1.15);transform:translateY(-1px)}.btn.secondary{background:#17231c;border-color:#3a5041;color:#c9d7cb}.btn.gold{background:linear-gradient(180deg,#b79b59,#7e6836);border-color:#d9c07b;color:#10170f}.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}.metric{margin:12px 0}.metric-head{display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px}.bar{height:7px;border-radius:0;background:#0a120e;overflow:hidden;border:1px solid #2c4034}.fill{height:100%;border-radius:0;background:linear-gradient(90deg,#729d7a,#c3d8ad);transition:width .25s}.fill.gold{background:linear-gradient(90deg,#8c7037,#e3ca82)}.fill.red{background:linear-gradient(90deg,#944c45,#e28a76)}
+.mission{padding:12px;border-radius:3px;background:#0d1712;border:1px solid #314639;margin-bottom:9px}.mission h4{font-size:12px;margin:0 0 5px}.mission p{font-size:11px;color:#aebfb2;line-height:1.55;margin:0}.mission .reward{font-size:11px;color:var(--gold);margin-top:8px}
+.event-log{max-height:220px;overflow:auto;padding-right:4px}.event{border-left:2px solid #587a5f;padding:2px 0 9px 11px;margin:0 0 8px;font-size:11px;color:#c2d0c5;line-height:1.55}.event time{display:block;color:#8ba492;font-size:10px;margin-bottom:2px}
+.promotion{border:1px solid #6b5c37;background:linear-gradient(120deg,#322c1b,#171e17);border-radius:3px;padding:13px;margin-bottom:12px}.promotion strong{display:block;font-size:13px;color:#ead69d}.promotion p{font-size:11px;line-height:1.55;color:#c9c4ac;margin:6px 0 0}
+footer{margin-top:18px;color:#7f9385;font-size:10px;line-height:1.7;text-align:center}
+@media(max-width:950px){.hero{grid-template-columns:1fr}.scene{min-height:300px}.layout{grid-template-columns:1fr 1fr}.layout .panel:last-child{grid-column:1/-1}}
+@media(max-width:600px){header{align-items:flex-start}.header-right{display:none}.layout{grid-template-columns:1fr}.layout .panel:last-child{grid-column:auto}.scene{min-height:340px}.stats-grid{grid-template-columns:repeat(2,1fr)}.profile{padding:14px}.soldier-wrap{min-height:110px}.soldier-card{width:90px;height:110px}}
+</style>
+</head>
+<body>
+<header>
+ <div class="brand"><div class="emblem">★</div><div><h1>대한민국 국군: 복무 시뮬레이터</h1><div class="sub">CAREER • READINESS • PERSONNEL MANAGEMENT</div></div></div>
+ <div class="header-right"><span class="chip">싱글 플레이</span><span class="chip">가상 시뮬레이션</span></div>
+</header>
+<main>
+ <section class="hero">
+  <div class="scene">
+   <canvas id="sceneCanvas" aria-label="산악 지형의 군부대 상황을 보여주는 애니메이션 장면"></canvas><div class="scene-overlay"></div>
+   <div class="scene-top"><div class="eyebrow">FIELD SITUATION / 06:40</div><h2 id="sceneTitle">아침 점호 준비</h2><div class="scene-copy" id="sceneCopy">부대의 하루가 시작됩니다. 체력과 사기를 관리하고 임무를 수행해 신뢰를 쌓으십시오.</div>
+   <div class="actions" style="pointer-events:auto;margin-top:12px"><button class="btn secondary" data-area="rollcall">점호장</button><button class="btn secondary" data-area="office">행정실</button><button class="btn secondary" data-area="barracks">생활관</button></div></div>
+   <div class="scene-bottom"><div><div class="location" id="locationLabel">📍 강원도 산악 지역 · 점호장</div><div class="small" id="weather">봄 · 맑음 · 기온 12°C · 시야 양호</div><div class="small" id="seasonLabel">봄 1주차 · 가상 부대</div></div><div class="live"><span class="dot"></span><span id="liveStatus">상황 정상</span></div></div>
+  </div>
+  <aside class="profile">
+   <div class="profile-head"><h3>내 군인 프로필</h3><span class="tag" id="serviceTag">복무 1일차</span></div>
+   <div class="soldier-wrap">
+    <div class="soldier-card"><svg id="uniformSvg" viewBox="0 0 110 130" role="img" aria-label="현재 계급의 군복 일러스트"><defs><linearGradient id="cloth" x1="0" x2="1"><stop stop-color="#71846a"/><stop offset="1" stop-color="#354b3c"/></linearGradient></defs><path d="M32 37 L17 48 8 83 25 88 33 68 32 118 78 118 77 68 85 88 102 83 93 48 78 37 68 31 42 31Z" fill="url(#cloth)" stroke="#a1b195" stroke-width="1.5"/><path d="M42 31 L55 44 68 31 63 25 47 25Z" fill="#d2d6bc"/><path d="M41 14 Q55 3 69 14 L72 29 Q55 41 38 29Z" fill="#c7a07d"/><path d="M36 17 Q55 -1 74 17 L73 24 37 24Z" fill="#3d513e" stroke="#81926d"/><path d="M46 29 L55 42 64 29" fill="#344b3c"/><rect x="36" y="54" width="15" height="12" rx="2" fill="#263a2d"/><rect x="60" y="54" width="15" height="12" rx="2" fill="#263a2d"/><path d="M55 46V115" stroke="#9eaf8e" stroke-width="1.5"/><rect x="45" y="74" width="20" height="7" rx="1" fill="#b4a36a"/><path d="M35 90L48 94M75 90L62 94" stroke="#263a2d" stroke-width="4"/><path d="M33 118h19v8H29ZM58 118h19l5 8H58Z" fill="#27352c"/><g id="rankInsignia" fill="#dfcb84"><path d="M42 47l4 -4 4 4 -4 4z"/></g></svg></div>
+    <div><div class="small">현재 계급</div><div class="rank-name" id="rankName">이병</div><div class="rank-en" id="rankEnglish">PRIVATE 2ND CLASS</div><div class="rank-note" id="rankNote">기초 군기와 생활 적응을 익히는 단계입니다.</div></div>
+   </div>
+   <div class="stats-grid"><div class="stat"><span>복무 일수</span><strong id="daysStat">1일</strong></div><div class="stat"><span>평가 점수</span><strong id="scoreStat">50</strong></div><div class="stat"><span>보유 포인트</span><strong id="pointsStat">0 P</strong></div><div class="stat"><span>임무 완료</span><strong id="missionStat">0회</strong></div></div>
+  </aside>
+ </section>
+ <section class="layout">
+  <div class="panel">
+   <div class="panel-title"><h3>개인 특성 설정</h3><span class="tag">0–100%</span></div>
+   <div class="note">외모·건강·지능은 직접 설정할 수 있습니다. 행복도는 기온, 계절, 날씨, 휴식과 복무 상황에 따라 자동으로 변합니다.</div>
+   <div class="metric"><div class="metric-head"><span>현재 행복도 (자동 계산)</span><b id="happinessVal">75%</b></div><div class="bar"><div class="fill gold" id="happinessDisplayBar" style="width:75%"></div></div></div>
+   <div class="slider-row"><div class="slider-label"><label for="appearance">외모</label><b id="appearanceVal">70%</b></div><input id="appearance" type="range" min="0" max="100" value="70"><div class="range-scale"><span>0%</span><span>100%</span></div></div>
+   <div class="slider-row"><div class="slider-label"><label for="health">건강</label><b id="healthVal">85%</b></div><input id="health" type="range" min="0" max="100" value="85"><div class="range-scale"><span>0%</span><span>100%</span></div></div>
+   <div class="slider-row"><div class="slider-label"><label for="intelligence">지능</label><b id="intelligenceVal">80%</b></div><input id="intelligence" type="range" min="0" max="100" value="80"><div class="range-scale"><span>0%</span><span>100%</span></div></div>
+   <div class="actions"><button class="btn secondary" id="resetStats">기본값 복원</button><button class="btn" id="applyStats">능력치 적용</button></div>
+   <p class="note" id="statFeedback">능력치를 조정한 뒤 적용을 누르십시오.</p>
+  </div>
+  <div class="panel">
+   <div class="panel-title"><h3>복무 상태</h3><span class="tag">실시간</span></div>
+   <div class="metric"><div class="metric-head"><span>사기 / 행복도</span><b id="moraleText">75%</b></div><div class="bar"><div class="fill" id="moraleBar" style="width:75%"></div></div></div>
+   <div class="metric"><div class="metric-head"><span>건강 상태</span><b id="healthText">85%</b></div><div class="bar"><div class="fill" id="healthBar" style="width:85%"></div></div></div>
+   <div class="metric"><div class="metric-head"><span>지휘관 신뢰도</span><b id="trustText">50%</b></div><div class="bar"><div class="fill gold" id="trustBar" style="width:50%"></div></div></div>
+   <div class="metric"><div class="metric-head"><span>군 생활 적응도</span><b id="adaptText">35%</b></div><div class="bar"><div class="fill" id="adaptBar" style="width:35%"></div></div></div>
+   <div class="promotion" id="promotionBox"><strong>다음 진급: 일병</strong><p>평가 점수 65점 이상 및 복무 기간 조건을 충족해야 합니다. 성실한 임무 수행으로 진급 가능성을 높이십시오.</p></div>
+   <div class="panel-title"><h3>오늘의 임무</h3><span class="small">선택 후 수행</span></div>
+   <div class="mission"><h4>01 · 아침 점호 및 장비 점검</h4><p>인원 확인, 복장 정리, 개인 장비 상태 확인을 완료합니다.</p><div class="reward">보상: 평가 +5 · 신뢰 +3 · 적응 +4</div><button class="btn secondary" style="margin-top:9px;width:100%" id="missionCheck">점호 수행</button></div>
+   <div class="mission"><h4>02 · 체력 단련</h4><p>개인 체력과 건강 상태를 관리합니다. 무리하면 피로가 쌓일 수 있습니다.</p><div class="reward">보상: 건강 +3 · 평가 +4</div><button class="btn secondary" style="margin-top:9px;width:100%" id="missionTrain">체력 단련</button></div>
+   <div class="mission"><h4>03 · 전술 교육 (가상)</h4><p>안전·통신·팀워크 중심의 교육 훈련을 이수합니다.</p><div class="reward">보상: 평가 +7 · 지휘관 신뢰 +4</div><button class="btn secondary" style="margin-top:9px;width:100%" id="missionStudy">교육 이수</button></div>
+  </div>
+  <div class="panel">
+   <div class="panel-title"><h3>진급 및 보상</h3><span class="tag">CAREER</span></div>
+   <div class="note" style="margin-bottom:12px">진급은 복무 일수와 평가 점수, 지휘관 신뢰도를 기준으로 판정합니다. 실제 군 인사 규정을 그대로 재현한 것이 아닌 게임 규칙입니다.</div>
+   <div id="careerList"></div>
+   <div class="actions"><button class="btn gold" id="advanceDay">하루 진행</button><button class="btn secondary" id="tryPromotion">진급 심사</button></div>
+   <div class="panel-title" style="margin-top:20px"><h3>행정실 업무</h3><span class="small">일일 행정</span></div>
+   <div class="mission"><h4>04 · 복무 기록 확인</h4><p>복무 일수와 임무 기록을 정리합니다. 지휘관 신뢰도와 평가 점수를 높일 수 있습니다.</p><div class="reward">보상: 평가 +3 · 신뢰 +2</div><button class="btn secondary" style="margin-top:9px;width:100%" id="officeTask">행정 업무 처리</button></div>
+   <div class="panel-title" style="margin-top:20px"><h3>상황 기록</h3><span class="small">최근 기록</span></div>
+   <div class="event-log" id="eventLog"><div class="event"><time>06:40 · 복무 시작</time>가상 부대에 전입했습니다. 개인 특성을 설정하고 첫 임무를 선택하십시오.</div></div>
+   <div class="actions"><button class="btn secondary" id="saveGame">진행 저장</button><button class="btn secondary" id="newGame">새 게임</button></div>
+   <p class="note" id="saveFeedback">저장 기능은 현재 브라우저의 로컬 저장소를 사용합니다.</p>
+  </div>
+ </section>
+ <footer>본 게임은 대한민국 군 복무를 소재로 한 가상 인사·생활 시뮬레이터입니다. 실제 군부대의 작전 상황, 인사 규정 또는 공식 군사 정보를 제공하지 않습니다.<br>모바일·데스크톱 브라우저에서 실행할 수 있는 단일 HTML 프로토타입입니다.</footer>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const ranks=[
+ {name:'이병',en:'PRIVATE 2ND CLASS',days:0,score:0,trust:0,note:'기초 군기와 생활 적응을 익히는 단계입니다.',color:'#63785c',uniform:0},
+ {name:'일병',en:'PRIVATE 1ST CLASS',days:7,score:65,trust:40,note:'기본 임무를 익히고 동료와 협력하는 단계입니다.',color:'#718b61',uniform:1},
+ {name:'상병',en:'CORPORAL',days:20,score:120,trust:55,note:'숙련도를 높이고 후임의 적응을 돕는 단계입니다.',color:'#9a9a5b',uniform:2},
+ {name:'병장',en:'SERGEANT',days:35,score:190,trust:65,note:'책임감과 팀워크를 발휘하며 임무 완수를 이끕니다.',color:'#b7a65e',uniform:3},
+ {name:'하사',en:'STAFF SERGEANT',days:55,score:280,trust:72,note:'간부 후보 경로가 열린 가상 진급 단계입니다.',color:'#d1bb78',uniform:4},
+ {name:'중사',en:'SERGEANT FIRST CLASS',days:85,score:400,trust:80,note:'인원 관리와 교육 역량을 평가받습니다.',color:'#e0c984',uniform:5},
+ {name:'상사',en:'MASTER SERGEANT',days:120,score:550,trust:86,note:'부대 운영과 리더십을 책임지는 단계입니다.',color:'#e8d8a2',uniform:6}
+];
+let state={day:1,score:50,points:0,missions:0,trust:50,adapt:35,rank:0,done:{},applied:{happiness:75,appearance:70,health:85,intelligence:80},area:'rollcall'};
+const missionIds=['missionCheck','missionTrain','missionStudy','officeTask'];
+const climate={season:'봄',weather:'맑음',temp:12,comfort:0};
+function updateClimate(){
+ const seasonIndex=Math.floor(((state.day-1)%28)/7);
+ const seasonNames=['봄','여름','가을','겨울'];
+ const baseTemps=[13,28,16,-5];
+ const weatherTypes=[['맑음','흐림','비'],['맑음','폭염','소나기'],['맑음','흐림','비'],['맑음','강풍','눈']];
+ climate.season=seasonNames[seasonIndex];
+ const weatherList=weatherTypes[seasonIndex];
+ climate.weather=weatherList[(Math.floor((state.day-1)/2)+Math.floor(state.day/5))%weatherList.length];
+ const delta=climate.weather==='폭염'?7:climate.weather==='눈'?-4:climate.weather==='강풍'?-3:climate.weather==='비'||climate.weather==='소나기'?-2:climate.weather==='흐림'?-1:0;
+ climate.temp=baseTemps[seasonIndex]+delta+Math.round(Math.sin(state.day*1.7)*2);
+ const discomfort=Math.max(0,Math.abs(climate.temp-20)-5)*0.9;
+ const weatherPenalty=['비','소나기','눈','강풍','폭염'].includes(climate.weather)?4:climate.weather==='흐림'?1:0;
+ const restBonus=state.adapt>65?2:0;
+ state.applied.happiness=cap(Math.round(76-discomfort-weatherPenalty+restBonus+(state.trust-50)*0.12));
+ climate.comfort=cap(100-Math.round(discomfort*2)-weatherPenalty*2);
+ $('weather').textContent=climate.season+' · '+climate.weather+' · 기온 '+(climate.temp>0?'+':'')+climate.temp+'°C';
+ $('seasonLabel').textContent=climate.season+' '+(Math.floor(((state.day-1)%28)/7)+1)+'주차 · 계절별 환경 변화';
+ $('happinessVal').textContent=state.applied.happiness+'%';
+ $('happinessDisplayBar').style.width=state.applied.happiness+'%';
+}
+
+function addLog(message){const d=document.createElement('div');d.className='event';d.innerHTML='<time>'+String(6+Math.floor(Math.random()*12)).padStart(2,'0')+':'+String(Math.floor(Math.random()*60)).padStart(2,'0')+' · 복무 기록</time>'+message;$('eventLog').prepend(d);while($('eventLog').children.length>12)$('eventLog').lastChild.remove()}
+function cap(v){return Math.max(0,Math.min(100,v))}
+function render(){
+ updateClimate();
+ const areaNames={rollcall:'점호장',office:'행정실',barracks:'생활관'};
+ $('locationLabel').textContent='📍 강원도 산악 지역 · '+areaNames[state.area||'rollcall'];
+ $('daysStat').textContent=state.day+'일';$('scoreStat').textContent=state.score;$('pointsStat').textContent=state.points+' P';$('missionStat').textContent=state.missions+'회';$('serviceTag').textContent='복무 '+state.day+'일차';
+ const r=ranks[state.rank];$('rankName').textContent=r.name;$('rankEnglish').textContent=r.en;$('rankNote').textContent=r.note;
+ $('happinessVal').textContent=state.applied.happiness+'%';$('happinessDisplayBar').style.width=state.applied.happiness+'%';$('moraleText').textContent=state.applied.happiness+'%';$('moraleBar').style.width=state.applied.happiness+'%';
+ $('healthText').textContent=state.applied.health+'%';$('healthBar').style.width=state.applied.health+'%';
+ $('trustText').textContent=state.trust+'%';$('trustBar').style.width=state.trust+'%';
+ $('adaptText').textContent=state.adapt+'%';$('adaptBar').style.width=state.adapt+'%';
+ $('promotionBox').innerHTML=state.rank<ranks.length-1?'<strong>다음 진급: '+ranks[state.rank+1].name+'</strong><p>조건: 복무 '+ranks[state.rank+1].days+'일 이상 · 평가 '+ranks[state.rank+1].score+'점 이상 · 신뢰도 '+ranks[state.rank+1].trust+'% 이상. 세 조건을 모두 충족해야 합니다.</p>':'<strong>최고 계급 달성</strong><p>현재 시뮬레이터의 최고 계급에 도달했습니다. 남은 기간 동안 부대 운영과 임무 수행을 이어가십시오.</p>';
+ $('careerList').innerHTML=ranks.map((x,i)=>'<div style="display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid #293d31;opacity:'+(i<=state.rank?1:.62)+'"><div style="width:28px;height:28px;border:1px solid '+(i<=state.rank?'#a9bc8e':'#405247')+';border-radius:2px;display:grid;place-items:center;color:'+(i<=state.rank?'#d8e7c9':'#809184')+';font-size:11px">'+(i<state.rank?'✓':i===state.rank?'★':i+1)+'</div><div style="flex:1"><div style="font-size:12px;font-weight:700">'+x.name+(i===state.rank?' · 현재':'')+'</div><div class="small">평가 '+x.score+' · 복무 '+x.days+'일 · 신뢰 '+x.trust+'%</div></div></div>').join('');
+ $('rankInsignia').innerHTML=Array.from({length:state.rank+1},(_,i)=>'<path d="M'+(42+i*5)+' 47 l3 -4 3 4 -3 4z"/>').join('');
+ $('uniformSvg').querySelectorAll('path:first-of-type')[0].setAttribute('fill',r.color);
+ const areaScenes={rollcall:['아침 점호 준비','대열을 맞추고 인원과 장비를 확인하는 점호장입니다.'],office:['행정실','복무 기록, 근무 일정, 평가 서류를 관리하는 행정실입니다.'],barracks:['생활관','휴식과 개인 정비를 하는 생활관입니다. 휴식은 적응도와 복무 만족도에 도움이 됩니다.']};
+ $('sceneTitle').textContent=areaScenes[state.area||'rollcall'][0];
+ $('sceneCopy').textContent=areaScenes[state.area||'rollcall'][1];
+ $('liveStatus').textContent=state.applied.health<25?'건강 관리 필요':state.trust>=75?'임무 준비 양호':'상황 정상';
+}
+function valuesFromSliders(){return {appearance:+$('appearance').value,health:+$('health').value,intelligence:+$('intelligence').value}}
+['appearance','health','intelligence'].forEach(k=>$(k).addEventListener('input',()=>$(k+'Val').textContent=$(k).value+'%'));
+$('applyStats').onclick=()=>{const v=valuesFromSliders();state.applied.appearance=v.appearance;state.applied.health=v.health;state.applied.intelligence=v.intelligence;state.trust=cap(state.trust+Math.round((state.applied.intelligence-50)/25));$('statFeedback').textContent='외모·건강·지능 설정을 적용했습니다. 행복도는 계절과 기상 조건에 따라 자동 계산됩니다.';addLog('개인 특성을 적용했습니다. 외모 '+v.appearance+'%, 건강 '+v.health+'%, 지능 '+v.intelligence+'%.');updateClimate();render()};
+$('resetStats').onclick=()=>{Object.entries({appearance:70,health:85,intelligence:80}).forEach(([k,v])=>{$(k).value=v;$(k+'Val').textContent=v+'%'});$('statFeedback').textContent='설정 가능한 능력치를 기본값으로 복원했습니다. 적용을 눌러 반영하십시오.'};
+function doMission(type){
+ if(state.done[state.day+'-'+type]){addLog('오늘 이미 완료한 임무입니다. 하루 진행 후 다시 수행할 수 있습니다.');return}
+ state.done[state.day+'-'+type]=true;state.missions++;state.points+=10;
+ if(type==='check'){state.score+=5;state.trust=cap(state.trust+3);state.adapt=cap(state.adapt+4);addLog('아침 점호 및 장비 점검을 완료했습니다. 평가와 지휘관 신뢰도가 상승했습니다.')}
+ if(type==='train'){let h=state.applied.health;state.score+=4;if(h>=35)state.applied.health=cap(h+3);else state.applied.health=cap(h-2);state.adapt=cap(state.adapt+2);addLog(h>=35?'체력 단련을 완료했습니다. 건강과 적응도가 향상되었습니다.':'컨디션이 낮아 체력 단련 효율이 떨어졌습니다. 휴식이 필요합니다.')}
+ if(type==='study'){state.score+=7;state.trust=cap(state.trust+4);state.applied.intelligence=cap(state.applied.intelligence+1);addLog('안전·통신·팀워크 교육을 이수했습니다. 평가와 신뢰도가 상승했습니다.')}
+ $('missionCheck').disabled=!!state.done[state.day+'-check'];$('missionTrain').disabled=!!state.done[state.day+'-train'];$('missionStudy').disabled=!!state.done[state.day+'-study'];$('officeTask').disabled=!!state.done[state.day+'-office'];
+ render();
+}
+$('missionCheck').onclick=()=>{state.area='rollcall';doMission('check')};$('missionTrain').onclick=()=>doMission('train');$('missionStudy').onclick=()=>doMission('study');
+$('officeTask').onclick=()=>{state.area='office';if(state.done[state.day+'-office']){addLog('오늘 행정실 업무는 이미 처리했습니다.');return}state.done[state.day+'-office']=true;state.score+=3;state.trust=cap(state.trust+2);state.points+=5;state.missions++;addLog('행정실에서 복무 기록을 확인하고 일일 행정 업무를 처리했습니다. 평가 +3, 신뢰도 +2.');render()};
+document.querySelectorAll('[data-area]').forEach(b=>b.addEventListener('click',()=>{state.area=b.dataset.area;const names={rollcall:'점호장',office:'행정실',barracks:'생활관'};const descriptions={rollcall:'대열을 맞추고 인원과 장비를 확인하는 점호장입니다.',office:'복무 기록, 근무 일정, 평가 서류를 관리하는 행정실입니다.',barracks:'휴식과 개인 정비를 하는 생활관입니다. 휴식은 행복도 회복에 도움이 됩니다.'};$('sceneTitle').textContent=names[state.area];$('sceneCopy').textContent=descriptions[state.area];if(state.area==='barracks'){state.adapt=cap(state.adapt+2);addLog('생활관에서 휴식하며 적응도가 조금 상승했습니다.')}if(state.area==='office')addLog('행정실로 이동했습니다. 복무 기록을 확인할 수 있습니다.');render()}));
+$('advanceDay').onclick=()=>{state.day++;state.done={};state.adapt=cap(state.adapt+1);updateClimate();if(state.day%7===0){state.score+=3;state.points+=15;addLog('주간 평가가 진행되었습니다. 꾸준한 복무로 평가 점수와 포인트를 얻었습니다.')}else addLog('하루가 지났습니다. '+climate.season+' '+climate.weather+'('+climate.temp+'°C) 조건으로 행복도가 '+state.applied.happiness+'%가 되었습니다. 새로운 임무가 열렸습니다.');missionIds.forEach(id=>$(id).disabled=false);render()};
+function promotion(){if(state.rank>=ranks.length-1){addLog('현재 최고 계급입니다.');return}let n=ranks[state.rank+1];if(state.day>=n.days&&state.score>=n.score&&state.trust>=n.trust){state.rank++;state.points+=100;addLog('진급 심사 통과! '+ranks[state.rank].name+'(으)로 진급했습니다. 계급에 따라 군복 계급장이 변경되었습니다.');render()}else{addLog('진급 심사 보류: 복무 일수, 평가 점수, 신뢰도 중 충족하지 못한 조건이 있습니다.');$('promotionBox').style.borderColor='#b86d5e'}}
+$('tryPromotion').onclick=promotion;
+$('newGame').onclick=()=>{if(!confirm('현재 진행 상황을 초기화하고 새 게임을 시작할까요?'))return;state={day:1,score:50,points:0,missions:0,trust:50,adapt:35,rank:0,done:{},applied:{happiness:75,appearance:70,health:85,intelligence:80},area:'rollcall'};Object.entries(state.applied).forEach(([k,v])=>{if($(k)){$(k).value=v;if($(k+'Val'))$(k+'Val').textContent=v+'%'}});$('eventLog').innerHTML='';missionIds.forEach(id=>$(id).disabled=false);addLog('새 복무 기록이 시작되었습니다.');render()};
+$('saveGame').onclick=()=>{try{localStorage.setItem('krArmySimSave',JSON.stringify(state));$('saveFeedback').textContent='현재 진행 상황을 이 브라우저에 저장했습니다.'}catch(e){$('saveFeedback').textContent='저장에 실패했습니다. 브라우저의 저장 권한을 확인하십시오.'}};
+try{let saved=localStorage.getItem('krArmySimSave');if(saved){let parsed=JSON.parse(saved);if(parsed&&parsed.applied&&Array.isArray(ranks)&&Number.isInteger(parsed.rank)){state={...state,...parsed};Object.entries(state.applied).forEach(([k,v])=>{if($(k)){$(k).value=v;if($(k+'Val'))$(k+'Val').textContent=v+'%'}});addLog('이전에 저장한 진행 상황을 불러왔습니다.')}}}catch(e){}
+updateClimate();render();
+const canvas=$('sceneCanvas');
+const pixelCanvas=document.createElement('canvas');pixelCanvas.width=320;pixelCanvas.height=180;
+const ctx=pixelCanvas.getContext('2d');let tick=0;
+function drawScene(){
+ tick+=0.12;
+ const w=320,h=180;ctx.clearRect(0,0,w,h);
+ const season=climate.season,area=state.area||'rollcall';
+ const palettes={
+  '봄':{sky:'#8fb6b0',sun:'#f3d89a',far:'#789b83',mid:'#4f7b5d',ground:'#31583b',light:'#9dbb74',leaf:'#5e8c4c'},
+  '여름':{sky:'#70a9c4',sun:'#ffe59a',far:'#638d79',mid:'#39704a',ground:'#285336',light:'#78a94e',leaf:'#347a3d'},
+  '가을':{sky:'#c2a78c',sun:'#f4c878',far:'#9b8a65',mid:'#8b7547',ground:'#5a5834',light:'#bd9a50',leaf:'#a96e37'},
+  '겨울':{sky:'#91a7b8',sun:'#dbe5ed',far:'#9aabb0',mid:'#718b91',ground:'#c0ced0',light:'#e3e9e7',leaf:'#536e6c'}
+ };
+ const p=palettes[season]||palettes['봄'];
+ // Pixel-art sky and distant mountains.
+ ctx.fillStyle=p.sky;ctx.fillRect(0,0,w,h);
+ ctx.fillStyle=p.sun;ctx.fillRect(248,18,13,13);ctx.fillRect(244,22,21,5);
+ ctx.fillStyle=p.far;
+ for(let x=0;x<w;x+=16){let peak=48+Math.round((Math.sin(x*.09)+Math.cos(x*.043))*12);ctx.fillRect(x,peak,16,100)}
+ ctx.fillStyle=p.mid;
+ for(let x=-8;x<w;x+=20){let peak=72+Math.round(Math.sin(x*.06+2)*10);ctx.fillRect(x,peak,20,90);ctx.fillRect(x+4,peak-5,8,5)}
+ // Ground bands and pixel vegetation.
+ ctx.fillStyle=p.ground;ctx.fillRect(0,106,w,74);
+ ctx.fillStyle=p.light;for(let i=0;i<55;i++){let x=(i*47+13)%w,y=112+(i*19)%62;ctx.fillRect(x,y,2,2)}
+ if(season==='겨울'){ctx.fillStyle='#e0e9e8';ctx.fillRect(0,106,w,4);for(let i=0;i<40;i++){ctx.fillRect((i*37)%w,108+(i*23)%66,2,2)}}
+ if(season==='가을'){for(let i=0;i<28;i++){ctx.fillStyle=i%2?'#b4773f':'#d4a44c';ctx.fillRect((i*41)%w,110+(i*17)%62,3,2)}}
+ // Perimeter fence.
+ ctx.fillStyle='#39463b';ctx.fillRect(0,99,w,2);ctx.fillRect(0,111,w,2);
+ for(let x=8;x<w;x+=25){ctx.fillStyle='#48564a';ctx.fillRect(x,95,2,20)}
+ // Area-specific buildings, crisp block geometry.
+ if(area==='office'){
+  ctx.fillStyle='#344c3d';ctx.fillRect(74,51,174,70);ctx.fillStyle='#5e7358';ctx.fillRect(68,47,186,9);
+  ctx.fillStyle='#263b30';ctx.fillRect(88,63,30,22);ctx.fillRect(130,63,30,22);ctx.fillRect(172,63,30,22);ctx.fillRect(214,63,22,22);
+  ctx.fillStyle='#9cb39a';ctx.fillRect(90,65,26,18);ctx.fillRect(132,65,26,18);ctx.fillRect(174,65,26,18);ctx.fillRect(216,65,18,18);
+  ctx.fillStyle='#5d4936';ctx.fillRect(143,91,28,30);ctx.fillStyle='#b7a675';ctx.fillRect(153,103,3,3);
+  ctx.fillStyle='#e6d7a5';ctx.fillRect(124,36,77,11);ctx.fillStyle='#263b30';ctx.font='7px monospace';ctx.fillText('ADMIN OFFICE',132,44);
+ }else if(area==='barracks'){
+  ctx.fillStyle='#3e5844';ctx.fillRect(58,55,204,66);ctx.fillStyle='#6f805c';ctx.fillRect(52,50,216,8);
+  ctx.fillStyle='#293d30';for(let x=72;x<250;x+=30)ctx.fillRect(x,66,19,18);
+  ctx.fillStyle='#9fb2a0';for(let x=74;x<250;x+=30)ctx.fillRect(x,68,15,14);
+  ctx.fillStyle='#594a35';ctx.fillRect(147,91,28,30);
+  ctx.fillStyle='#e0d2a3';ctx.fillRect(128,38,72,10);ctx.fillStyle='#263b30';ctx.font='7px monospace';ctx.fillText('BARRACKS',141,45);
+ }else{
+  // Roll-call yard, lineup markers and a small guard post.
+  ctx.fillStyle='#7e8b72';ctx.fillRect(34,100,252,42);ctx.fillStyle='#c2c6a0';for(let x=43;x<285;x+=16)ctx.fillRect(x,119,2,12);
+  ctx.fillStyle='#384c3a';ctx.fillRect(245,73,45,35);ctx.fillStyle='#697c5c';ctx.fillRect(240,69,54,7);ctx.fillStyle='#1e3025';ctx.fillRect(254,82,12,15);
+ }
+ function pixelSoldier(x,y,s,frame){
+  const bob=(Math.floor(tick/3+frame)%2);
+  ctx.fillStyle='#1c2b21';ctx.fillRect(x-5*s,y-1*s,10*s,2*s);
+  ctx.fillStyle='#293b2c';ctx.fillRect(x-3*s,y-10*s+bob,2*s,10*s);ctx.fillRect(x+1*s,y-10*s,2*s,10*s);
+  ctx.fillStyle='#647b50';ctx.fillRect(x-4*s,y-23*s+bob,8*s,13*s);ctx.fillRect(x-6*s,y-21*s+bob,3*s,8*s);ctx.fillRect(x+3*s,y-21*s+bob,3*s,8*s);
+  ctx.fillStyle='#bd9877';ctx.fillRect(x-3*s,y-29*s+bob,6*s,6*s);
+  ctx.fillStyle='#344b35';ctx.fillRect(x-4*s,y-31*s+bob,8*s,3*s);ctx.fillRect(x-5*s,y-29*s+bob,10*s,2*s);
+  ctx.fillStyle='#d1c58b';ctx.fillRect(x-2*s,y-20*s+bob,4*s,2*s);
+ }
+ if(area==='rollcall'){pixelSoldier(90,157,1.1,0);pixelSoldier(113,157,1.1,1);pixelSoldier(136,157,1.1,2);pixelSoldier(159,157,1.1,3);pixelSoldier(182,157,1.1,4)}
+ else if(area==='office'){pixelSoldier(117,153,1,1);pixelSoldier(204,153,1,2)}
+ else{pixelSoldier(100,154,1,0);pixelSoldier(224,154,1,2)}
+ // Season-dependent particles.
+ if(climate.weather==='비'||climate.weather==='소나기'){
+  ctx.strokeStyle='#d1e2e7';ctx.lineWidth=1;for(let i=0;i<36;i++){let x=(i*31+Math.floor(tick*5))%w,y=(i*17+Math.floor(tick*9))%h;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-2,y+5);ctx.stroke()}
+ }else if(climate.weather==='눈'){
+  ctx.fillStyle='#f1f4ee';for(let i=0;i<28;i++){let x=(i*29+Math.floor(tick*2))%w,y=(i*23+Math.floor(tick*3))%h;ctx.fillRect(x,y,2,2)}
+ }else if(climate.weather==='강풍'){
+  ctx.fillStyle='#d7d9bf';for(let i=0;i<16;i++){let x=(i*27+Math.floor(tick*8))%w,y=(i*19+55)%h;ctx.fillRect(x,y,7,1)}
+ }
+ // Small HUD panel inside the pixel scene.
+ ctx.fillStyle='#101a14';ctx.fillRect(7,7,100,17);ctx.strokeStyle='#82977b';ctx.strokeRect(7.5,7.5,99,16);
+ ctx.fillStyle='#e4e8cf';ctx.font='8px monospace';ctx.fillText(season.toUpperCase()+' / '+climate.temp+'C',12,18);
+ ctx.fillStyle='#101a14';ctx.fillRect(220,7,92,17);ctx.strokeStyle='#82977b';ctx.strokeRect(220.5,7.5,91,16);
+ ctx.fillStyle='#e4e8cf';ctx.fillText(climate.weather,228,18);
+ // Scale logical pixels to the viewport using nearest-neighbor interpolation.
+ const rect=canvas.getBoundingClientRect(),dpr=Math.min(window.devicePixelRatio||1,2);
+ if(canvas.width!==Math.round(rect.width*dpr)||canvas.height!==Math.round(rect.height*dpr)){canvas.width=Math.round(rect.width*dpr);canvas.height=Math.round(rect.height*dpr)}
+ const out=canvas.getContext('2d');out.imageSmoothingEnabled=false;out.clearRect(0,0,canvas.width,canvas.height);out.drawImage(pixelCanvas,0,0,canvas.width,canvas.height);
+ requestAnimationFrame(drawScene);
+}
+requestAnimationFrame(drawScene);
+</script>
+</body></html>
